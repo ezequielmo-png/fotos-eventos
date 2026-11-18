@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fotos de eventos – Resellers</title>
+<style>
+  :root{
+    --bg:#f4f6f3; --card:#fff; --ink:#1d2320; --muted:#66706a; --line:#e2e6e1;
+    --brand:#5cb82e; --brand-d:#3f8f1c; --brand-l:#eaf6e3; --err:#c0392b; --warn:#b7791f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+  header{background:#111a14;color:#fff;padding:18px 20px}
+  header h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.2px}
+  header p{margin:4px 0 0;color:#b9c4bc;font-size:13px}
+  main{max-width:820px;margin:0 auto;padding:16px 14px 60px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .step{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+  .num{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;display:grid;place-items:center;font-size:13px;flex:none}
+  .num.done{background:var(--brand-d)}
+  .step h2{margin:0;font-size:16px}
+  label{display:block;font-weight:600;font-size:13px;margin:12px 0 5px}
+  .hint{color:var(--muted);font-size:12.5px;margin-top:4px}
+  input[type=text],input[type=date],input[type=time],select,textarea{width:100%;padding:11px 12px;border:1px solid #cfd6cf;border-radius:10px;font:inherit;background:#fff;color:inherit}
+  textarea{resize:vertical;min-height:44px}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:var(--brand)}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:560px){.row{grid-template-columns:1fr}}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:700;cursor:pointer;background:var(--brand);color:#fff}
+  .btn:hover{background:var(--brand-d)}
+  .btn:disabled{background:#c9d1c9;cursor:not-allowed}
+  .btn.sec{background:#fff;color:var(--ink);border:1px solid #cfd6cf}
+  .btn.sec:hover{background:#f2f5f1}
+  .btn.block{width:100%}
+  .btn.sm{padding:7px 11px;font-size:13px}
+  .drop{border:2px dashed #bcc7bd;border-radius:12px;padding:22px;text-align:center;cursor:pointer;background:#fafcf9}
+  .drop.over{border-color:var(--brand);background:var(--brand-l)}
+  .drop strong{display:block;font-size:15px}
+  .drop span{color:var(--muted);font-size:13px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px;margin-top:12px}
+  .th{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#dde3dd}
+  .th img{width:100%;height:100%;object-fit:cover;display:block}
+  .th .n{position:absolute;left:4px;top:4px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px}
+  .th .x{position:absolute;right:4px;top:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(0,0,0,.65);color:#fff;cursor:pointer;font-size:14px;line-height:22px;padding:0}
+  .th .tag{position:absolute;left:4px;bottom:4px;background:var(--warn);color:#fff;font-size:10px;border-radius:5px;padding:1px 5px}
+  .th .nodec{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;color:var(--muted);text-align:center;padding:4px}
+  .status{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:13.5px}
+  .status.ok{background:var(--brand-l);color:#245c0f}
+  .status.err{background:#fdecea;color:var(--err)}
+  .status.info{background:#eef2f6;color:#3b4a5a}
+  .coords{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:13px}
+  a{color:var(--brand-d)}
+  details{margin-top:8px;font-size:13px;color:var(--muted)}
+  details summary{cursor:pointer;color:var(--brand-d);font-weight:600}
+  details ol{margin:6px 0 0;padding-left:18px}
+  .wmopts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  @media (max-width:560px){.wmopts{grid-template-columns:1fr}}
+  .chk{display:flex;gap:8px;align-items:center;font-weight:600;font-size:14px;margin-top:4px}
+  .chk input{width:18px;height:18px;accent-color:var(--brand)}
+  .preview{margin-top:12px;border-radius:10px;overflow:hidden;background:#e8ece8;display:grid;place-items:center;min-height:120px}
+  .preview canvas{max-width:100%;height:auto;display:block}
+  .preview .empty{color:var(--muted);font-size:13px;padding:30px}
+  progress{width:100%;height:10px;margin-top:10px;accent-color:var(--brand)}
+  .results{margin-top:12px}
+  .res{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+  .res img{width:54px;height:54px;object-fit:cover;border-radius:6px;flex:none;background:#dde3dd}
+  .res .nm{flex:1;min-width:0;font-size:13.5px;word-break:break-word}
+  .res .nm small{display:block;color:var(--muted)}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#1d2320;color:#fff;padding:10px 16px;border-radius:10px;font-size:14px;max-width:92vw;opacity:0;pointer-events:none;transition:opacity .2s}
+  .toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>Fotos de eventos · Resellers</h1>
+  <p>Borra la metadata, renombra el lote, carga fecha y ubicación y agrega la marca de agua. Todo se procesa en tu dispositivo, las fotos no se suben a ningún lado.</p>
+</header>
+
+<main>
+  <!-- 1. Fotos -->
+  <section class="card">
+    <div class="step"><div class="num" id="n1">1</div><h2>Cargar fotos</h2></div>
+    <div class="drop" id="drop" tabindex="0" role="button">
+      <strong>Tocá para elegir fotos o arrastralas acá</strong>
+      <span>JPG, PNG, HEIC de iPhone o capturas de pantalla · podés cargar varias a la vez</span>
+    </div>
+    <input type="file" id="file" accept="image/*,.heic,.heif" multiple hidden>
+    <div class="grid" id="grid"></div>
+    <div id="photoStatus"></div>
+  </section>
+
+  <!-- 2. Borrar metadata -->
+  <section class="card">
+    <div class="step"><div class="num" id="n2">2</div><h2>Borrar metadata original</h2></div>
+    <button class="btn block" id="btnStrip" disabled>Borrar metadata</button>
+    <div id="stripStatus"></div>
+  </section>
+
+  <!-- 3. Datos del evento -->
+  <section class="card">
+    <div class="step"><div class="num" id="n3">3</div><h2>Datos del evento</h2></div>
+
+    <label for="reseller">Reseller</label>
+    <input type="text" id="reseller" placeholder="Ej: Agro Servicios del Sur" autocomplete="organization">
+
+    <div class="row">
+      <div>
+        <label for="fecha">Fecha del evento</label>
+        <input type="date" id="fecha">
+      </div>
+      <div>
+        <label for="hora">Hora (opcional)</label>
+        <input type="time" id="hora" value="12:00">
+        <div class="hint">Cada foto suma 1 segundo para que la galería respete el orden.</div>
+      </div>
+    </div>
+
+    <label for="lugar">Lugar del evento (texto)</label>
+    <input type="text" id="lugar" placeholder="Ej: Establecimiento La Esperanza, Tandil, Buenos Aires">
+    <div class="coords"><a id="mapsSearch" href="https://www.google.com/maps" target="_blank" rel="noopener">Buscar este lugar en Google Maps ↗</a></div>
+
+    <label for="gps">Ubicación GPS (link o coordenadas de Google Maps)</label>
+    <textarea id="gps" rows="2" placeholder="Pegá acá las coordenadas (ej: -37.3217, -59.1332) o el link largo de Google Maps"></textarea>
+    <div id="gpsStatus" class="coords"></div>
+    <button class="btn sec sm" id="btnHere" type="button" hidden style="margin-top:8px">📍 Usar mi ubicación actual</button>
+    <details>
+      <summary>¿Cómo copio la ubicación desde Google Maps?</summary>
+      <ol>
+        <li>Tocá «Buscar este lugar en Google Maps» o abrí Maps vos mismo.</li>
+        <li><b>Celular:</b> mantené apretado el punto exacto del evento. Arriba aparecen las coordenadas (ej. -37.3217, -59.1332). Tocalas para copiarlas.</li>
+        <li><b>PC:</b> clic derecho sobre el punto. La primera línea son las coordenadas y con un clic se copian.</li>
+        <li>Pegalas en este campo. También sirve el link largo de la barra de direcciones. Los links cortos (maps.app.goo.gl) no sirven.</li>
+      </ol>
+    </details>
+  </section>
+
+  <!-- 4. Marca de agua -->
+  <section class="card">
+    <div class="step"><div class="num" id="n4">4</div><h2>Marca de agua</h2></div>
+    <label class="chk"><input type="checkbox" id="wmOn" checked> Agregar marca de agua</label>
+    <div class="wmopts">
+      <div>
+        <label for="wmPos">Posición</label>
+        <select id="wmPos">
+          <option value="bl">Abajo a la izquierda</option>
+          <option value="br">Abajo a la derecha</option>
+          <option value="tl">Arriba a la izquierda</option>
+          <option value="tr">Arriba a la derecha</option>
+        </select>
+      </div>
+      <div>
+        <label for="wmSize">Tamaño</label>
+        <select id="wmSize">
+          <option value="0.8">Chica</option>
+          <option value="1" selected>Mediana</option>
+          <option value="1.3">Grande</option>
+        </select>
+      </div>
+      <div>
+        <label for="wmOp">Fondo</label>
+        <select id="wmOp">
+          <option value="0.35">Suave</option>
+          <option value="0.55" selected>Normal</option>
+          <option value="0.75">Fuerte</option>
+        </select>
+      </div>
+    </div>
+    <div class="preview" id="preview"><div class="empty">La vista previa aparece cuando cargás fotos.</div></div>
+  </section>
+
+  <!-- 5. Generar -->
+  <section class="card">
+    <div class="step"><div class="num" id="n5">5</div><h2>Generar y descargar</h2></div>
+    <button class="btn block" id="btnGo" disabled>Procesar fotos</button>
+    <div id="goStatus"></div>
+    <progress id="prog" value="0" max="1" hidden></progress>
+    <div class="results" id="results"></div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== PURE-START (funciones sin DOM: EXIF, ZIP, coordenadas) =====
+const TE = new TextEncoder();
+
+function parseCoords(raw){
+  const s = (raw||'').trim();
+  if(!s) return null;
+  if(/goo\.gl|maps\.app/i.test(s) && !/-?\d+\.\d+\s*,\s*-?\d+\.\d+/.test(s)) return {error:'short'};
+  let m, lat, lng;
+  const dec = decodeURIComponent(s.replace(/\+/g,' '));
+  if((m = dec.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/))) { lat=+m[1]; lng=+m[2]; }
+  else if((m = dec.match(/[?&](?:q|query|ll|destination|center)=\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/i))) { lat=+m[1]; lng=+m[2]; }
+  else if((m = dec.match(/@(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/))) { lat=+m[1]; lng=+m[2]; }
+  else if((m = dec.match(/(\d{1,3})\s*°\s*(\d{1,2})\s*['′]\s*([\d.,]+)\s*(?:"|″|'')?\s*([NS])[\s,]+(\d{1,3})\s*°\s*(\d{1,2})\s*['′]\s*([\d.,]+)\s*(?:"|″|'')?\s*([EOW])/i))) {
+    const f=(d,mi,se)=>(+d)+(+mi)/60+parseFloat(se.replace(',','.'))/3600;
+    lat=f(m[1],m[2],m[3])*(/S/i.test(m[4])?-1:1);
+    lng=f(m[5],m[6],m[7])*(/[OW]/i.test(m[8])?-1:1);
+  }
+  else if((m = dec.match(/(-?\d{1,3}\.\d+)\s*[,;\s]\s*(-?\d{1,3}\.\d+)/))) { lat=+m[1]; lng=+m[2]; }
+  else return {error:'format'};
+  if(!(Math.abs(lat)<=90 && Math.abs(lng)<=180)) return {error:'range'};
+  return {lat, lng};
+}
+
+function u16(v){ return [v & 255, (v>>8) & 255]; }
+function u32(v){ return [v & 255, (v>>8) & 255, (v>>16) & 255, (v>>>24) & 255]; }
+function asciiZ(s){ const b = TE.encode(String(s)); const o = new Uint8Array(b.length+1); o.set(b); return o; }
+function ucs2Z(s){ const o = []; for(const ch of String(s)){ const c = ch.codePointAt(0); if(c>0xFFFF){ const h=Math.floor((c-0x10000)/0x400)+0xD800, l=(c-0x10000)%0x400+0xDC00; o.push(...u16(h),...u16(l)); } else o.push(...u16(c)); } o.push(0,0); return new Uint8Array(o); }
+function rationals(arr){ const o=[]; arr.forEach(([n,d])=>{ o.push(...u32(n),...u32(d)); }); return new Uint8Array(o); }
+function toDMS(v){
+  const a = Math.abs(v); let d = Math.floor(a); let mf = (a-d)*60; let mi = Math.floor(mf);
+  let s = Math.round((mf-mi)*60*10000);
+  if(s>=600000){ s-=600000; mi+=1; } if(mi>=60){ mi-=60; d+=1; }
+  return [[d,1],[mi,1],[s,10000]];
+}
+// entry: {tag, type, count, bytes}
+function ent(tag, type, bytes, count){ return {tag, type, bytes, count: count ?? (type===2||type===1||type===7 ? bytes.length : type===5 ? bytes.length/8 : type===4 ? bytes.length/4 : bytes.length/2)}; }
+function ifdSize(entries){ let s = 2 + 12*entries.length + 4; for(const e of entries){ if(e.bytes.length>4) s += e.bytes.length + (e.bytes.length & 1); } return s; }
+function writeIFD(u8, offset, entries){
+  entries.sort((a,b)=>a.tag-b.tag);
+  const dv = new DataView(u8.buffer);
+  let data = offset + 2 + 12*entries.length + 4;
+  dv.setUint16(offset, entries.length, true);
+  entries.forEach((e,i)=>{
+    const p = offset + 2 + 12*i;
+    dv.setUint16(p, e.tag, true); dv.setUint16(p+2, e.type, true); dv.setUint32(p+4, e.count, true);
+    if(e.bytes.length<=4){ u8.set(e.bytes, p+8); }
+    else { dv.setUint32(p+8, data, true); u8.set(e.bytes, data); data += e.bytes.length + (e.bytes.length & 1); }
+  });
+  dv.setUint32(offset + 2 + 12*entries.length, 0, true);
+}
+/** Arma el bloque TIFF/EXIF. o: {dateTime:'YYYY:MM:DD HH:MM:SS', offset:'-03:00', description, artist, title, lat, lng, width, height} */
+function buildExif(o){
+  const ifd0 = [];
+  if(o.description) ifd0.push(ent(0x010E, 2, asciiZ(o.description)));
+  ifd0.push(ent(0x0131, 2, asciiZ('Fotos de eventos – Resellers')));
+  if(o.dateTime) ifd0.push(ent(0x0132, 2, asciiZ(o.dateTime)));
+  if(o.artist) ifd0.push(ent(0x013B, 2, asciiZ(o.artist)));
+  ifd0.push(ent(0x8769, 4, new Uint8Array(4), 1)); // Exif IFD pointer
+  const hasGps = typeof o.lat==='number' && typeof o.lng==='number';
+  if(hasGps) ifd0.push(ent(0x8825, 4, new Uint8Array(4), 1)); // GPS IFD pointer
+  if(o.title) ifd0.push(ent(0x9C9B, 1, ucs2Z(o.title)));          // XPTitle (Windows)
+  if(o.description) ifd0.push(ent(0x9C9C, 1, ucs2Z(o.description))); // XPComment (Windows)
+
+  const exif = [ ent(0x9000, 7, TE.encode('0232'), 4) ];
+  if(o.dateTime){ exif.push(ent(0x9003, 2, asciiZ(o.dateTime)), ent(0x9004, 2, asciiZ(o.dateTime))); }
+  if(o.offset){ exif.push(ent(0x9010, 2, asciiZ(o.offset)), ent(0x9011, 2, asciiZ(o.offset)), ent(0x9012, 2, asciiZ(o.offset))); }
+  if(o.width) exif.push(ent(0xA002, 4, new Uint8Array(u32(o.width)), 1));
+  if(o.height) exif.push(ent(0xA003, 4, new Uint8Array(u32(o.height)), 1));
+
+  let gps = null;
+  if(hasGps){
+    gps = [
+      ent(0x0000, 1, new Uint8Array([2,3,0,0])),
+      ent(0x0001, 2, asciiZ(o.lat<0?'S':'N')),
+      ent(0x0002, 5, rationals(toDMS(o.lat))),
+      ent(0x0003, 2, asciiZ(o.lng<0?'W':'E')),
+      ent(0x0004, 5, rationals(toDMS(o.lng))),
+    ];
+    if(o.dateTime){
+      // GPS time en UTC (Argentina: UTC-3 salvo que se indique otro offset)
+      const [d,t] = o.dateTime.split(' '); const [Y,M,D] = d.split(':').map(Number); const [h,mi,se] = t.split(':').map(Number);
+      const off = (o.offset||'+00:00').match(/([+-])(\d\d):(\d\d)/); const offMin = (off[1]==='-'?-1:1)*(+off[2]*60 + +off[3]);
+      const utc = new Date(Date.UTC(Y,M-1,D,h,mi,se) - offMin*60000);
+      gps.push(ent(0x0007, 5, rationals([[utc.getUTCHours(),1],[utc.getUTCMinutes(),1],[utc.getUTCSeconds(),1]])));
+      const ds = `${utc.getUTCFullYear()}:${String(utc.getUTCMonth()+1).padStart(2,'0')}:${String(utc.getUTCDate()).padStart(2,'0')}`;
+      gps.push(ent(0x001D, 2, asciiZ(ds)));
+    }
+  }
+  const off0 = 8;
+  const offExif = off0 + ifdSize(ifd0);
+  const offGps = offExif + ifdSize(exif);
+  const total = offGps + (gps ? ifdSize(gps) : 0);
+  ifd0.find(e=>e.tag===0x8769).bytes = new Uint8Array(u32(offExif));
+  if(gps) ifd0.find(e=>e.tag===0x8825).bytes = new Uint8Array(u32(offGps));
+  const u8 = new Uint8Array(total);
+  u8.set([0x49,0x49,0x2A,0x00, ...u32(8)], 0);
+  writeIFD(u8, off0, ifd0);
+  writeIFD(u8, offExif, exif);
+  if(gps) writeIFD(u8, offGps, gps);
+  return u8;
+}
+/** Inserta EXIF en un JPEG (sin metadata previa: el canvas ya la elimina). */
+function jpegWithExif(src, tiff){
+  if(src[0]!==0xFF || src[1]!==0xD8) throw new Error('No es JPEG');
+  let i = 2;
+  // saltear APP0 (JFIF) y cualquier APP1 existente
+  while(src[i]===0xFF && (src[i+1]===0xE0 || src[i+1]===0xE1)){ i += 2 + ((src[i+2]<<8) | src[i+3]); }
+  const len = 2 + 6 + tiff.length;
+  if(len > 0xFFFF) throw new Error('EXIF demasiado grande');
+  const head = new Uint8Array([0xFF,0xD8, 0xFF,0xE1, len>>8, len&255, 0x45,0x78,0x69,0x66,0,0]);
+  const out = new Uint8Array(head.length + tiff.length + (src.length - i));
+  out.set(head,0); out.set(tiff, head.length); out.set(src.subarray(i), head.length + tiff.length);
+  return out;
+}
+
+// ZIP sin compresión (las JPG ya están comprimidas)
+const CRC_T = (()=>{ const t = new Uint32Array(256); for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320 ^ (c>>>1) : c>>>1; t[n]=c>>>0; } return t; })();
+function crc32(u8){ let c = 0xFFFFFFFF; for(let i=0;i<u8.length;i++) c = CRC_T[(c ^ u8[i]) & 255] ^ (c>>>8); return (c ^ 0xFFFFFFFF)>>>0; }
+function makeZip(files){ // [{name, data:Uint8Array, date:Date}]
+  const parts=[], central=[]; let offset=0;
+  for(const f of files){
+    const name = TE.encode(f.name), d = f.date || new Date();
+    const time = (d.getHours()<<11) | (d.getMinutes()<<5) | (d.getSeconds()>>1);
+    const date = ((Math.max(d.getFullYear(),1980)-1980)<<9) | ((d.getMonth()+1)<<5) | d.getDate();
+    const crc = crc32(f.data), size = f.data.length;
+    const lh = new Uint8Array([...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(time), ...u16(date), ...u32(crc), ...u32(size), ...u32(size), ...u16(name.length), ...u16(0)]);
+    parts.push(lh, name, f.data);
+    const ch = new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(time), ...u16(date), ...u32(crc), ...u32(size), ...u32(size), ...u16(name.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(offset)]);
+    central.push(ch, name);
+    offset += lh.length + name.length + size;
+  }
+  const cdSize = central.reduce((a,b)=>a+b.length,0);
+  const eocd = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cdSize), ...u32(offset), ...u16(0)]);
+  return new Blob([...parts, ...central, eocd], {type:'application/zip'});
+}
+function cleanName(s){ return String(s||'').replace(/[\\/:*?"<>|\u0000-\u001f]/g,' ').replace(/\s+/g,' ').trim(); }
+// ===== PURE-END =====
+
+// ===== UI =====
+const $ = id => document.getElementById(id);
+const state = { items: [], stripped: false, results: [] };
+let downloads = null;
+const inClaude = !!(window.claude && typeof window.claude.use === 'function');
+if(inClaude){ window.claude.use('downloads').then(d => { downloads = d; }).catch(()=>{}); }
+
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'), 3200); }
+function setStatus(id, cls, html){ $(id).innerHTML = html ? `<div class="status ${cls}">${html}</div>` : ''; }
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+try { const r = localStorage.getItem('fe_reseller'); if(r) $('reseller').value = r; } catch(e){}
+
+// --- carga de fotos
+const drop = $('drop'), fileIn = $('file');
+drop.addEventListener('click', ()=>fileIn.click());
+drop.addEventListener('keydown', e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); fileIn.click(); }});
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev, e=>{ e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e=>addFiles(e.dataTransfer.files));
+fileIn.addEventListener('change', ()=>{ addFiles(fileIn.files); fileIn.value=''; });
+
+async function sniffMeta(file){
+  try{
+    const b = new Uint8Array(await file.slice(0, 262144).arrayBuffer());
+    let exif=false, gps=false;
+    for(let i=0;i<b.length-4;i++){
+      if(b[i]===0x45&&b[i+1]===0x78&&b[i+2]===0x69&&b[i+3]===0x66) exif=true;           // "Exif"
+      if(b[i]===0x65&&b[i+1]===0x58&&b[i+2]===0x49&&b[i+3]===0x66) exif=true;           // PNG "eXIf"
+      if(b[i]===0x25&&b[i+1]===0x88&&(b[i+2]===4||b[i+2]===0)&&b[i+3]===0) gps=true;   // tag GPS (LE)
+      if(b[i]===0x88&&b[i+1]===0x25&&b[i+2]===0&&(b[i+3]===4)) gps=true;               // tag GPS (BE)
+    }
+    return {exif, gps};
+  }catch(e){ return {exif:false, gps:false}; }
+}
+
+// --- HEIC (iPhone): primero intenta el navegador; si no puede, convierte con heic2any (local, sin subir nada)
+async function isHeic(file){
+  if(/hei[cf]/i.test(file.type) || /\.(heic|heif)$/i.test(file.name)) return true;
+  try{ const b = new Uint8Array(await file.slice(4, 12).arrayBuffer()); return /^ftyp(heic|heix|hevc|hevx|heim|heis|mif1|msf1)/.test(String.fromCharCode(...b)); }
+  catch(e){ return false; }
+}
+async function decodesNatively(file){
+  try{ const b = await createImageBitmap(file); if(b.close) b.close(); return true; } catch(e){ return false; }
+}
+let heicLib = null;
+function loadHeicLib(){
+  if(heicLib) return heicLib;
+  const srcs = ['heic2any.min.js', 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js'];
+  const tryLoad = i => new Promise((res, rej)=>{
+    if(i >= srcs.length) return rej(new Error('load'));
+    const s = document.createElement('script'); s.src = srcs[i];
+    s.onload = ()=> window.heic2any ? res(window.heic2any) : tryLoad(i+1).then(res, rej);
+    s.onerror = ()=>{ s.remove(); tryLoad(i+1).then(res, rej); };
+    document.head.appendChild(s);
+  });
+  heicLib = tryLoad(0).catch(e=>{ heicLib = null; throw e; });
+  return heicLib;
+}
+async function heicToJpeg(file){
+  const lib = await loadHeicLib();
+  let out = await lib({ blob: file, toType: 'image/jpeg', quality: 0.95 });
+  if(Array.isArray(out)) out = out[0];
+  return new File([out], file.name.replace(/\.(heic|heif)$/i, '') + '.jpg', { type: 'image/jpeg', lastModified: file.lastModified });
+}
+
+let adding = false;
+async function addFiles(list){
+  const files = [...list].filter(f => f.type.startsWith('image/') || /\.(jpe?g|png|heic|heif|webp)$/i.test(f.name));
+  if(!files.length || adding) return;
+  adding = true; $('btnGo').disabled = true; $('btnStrip').disabled = true;
+  let heicCount = 0, heicFail = 0;
+  for(let k=0;k<files.length;k++){
+    let f = files[k];
+    const meta = await sniffMeta(f);
+    const item = { id: Math.random().toString(36).slice(2), file: f, meta, heic: false, bad: false };
+    if(await isHeic(f)){
+      item.heic = true; heicCount++;
+      if(!(await decodesNatively(f))){
+        setStatus('photoStatus','info', `Convirtiendo fotos de iPhone (HEIC)… ${k+1} de ${files.length}. Puede tardar unos segundos por foto.`);
+        try{ item.file = await heicToJpeg(f); }
+        catch(e){ item.bad = true; heicFail++; }
+      }
+    }
+    item.url = URL.createObjectURL(item.file);
+    state.items.push(item);
+  }
+  adding = false;
+  state.stripped = false; state.results = [];
+  renderGrid(); refresh(); renderPreview();
+  if(heicFail) setStatus('photoStatus','err', `${heicFail} foto${heicFail>1?'s':''} HEIC no se ${heicFail>1?'pudieron':'pudo'} convertir en este navegador (marcadas en rojo). Probá abrir la página desde el iPhone con Safari o quitalas y cargalas de nuevo.`);
+  else if(heicCount) toast(`${heicCount} foto${heicCount>1?'s':''} de iPhone (HEIC) lista${heicCount>1?'s':''}`);
+}
+function renderGrid(){
+  const g = $('grid'); g.innerHTML = '';
+  state.items.forEach((it, i)=>{
+    const d = document.createElement('div'); d.className='th';
+    d.innerHTML = `<img alt="" src="${it.url}"><span class="n">${i+1}</span><button class="x" title="Quitar">×</button>${it.bad?'<span class="tag" style="background:var(--err)">no se pudo leer</span>':it.heic?'<span class="tag" style="background:#3b6fb6">HEIC ✓</span>':it.meta.exif?'<span class="tag">metadata</span>':''}`;
+    d.querySelector('img').onerror = function(){ this.remove(); d.insertAdjacentHTML('afterbegin','<div class="nodec">Sin vista previa</div>'); };
+    d.querySelector('.x').onclick = ()=>{ URL.revokeObjectURL(it.url); state.items.splice(i,1); state.stripped=false; renderGrid(); refresh(); renderPreview(); };
+    g.appendChild(d);
+  });
+  setStatus('photoStatus', state.items.length?'info':'', state.items.length ? `${state.items.length} foto${state.items.length>1?'s':''} cargada${state.items.length>1?'s':''}. Se numeran en este orden.` : '');
+  $('results').innerHTML=''; setStatus('goStatus','','');
+}
+
+// --- borrar metadata
+$('btnStrip').onclick = ()=>{
+  const withMeta = state.items.filter(i=>i.meta.exif).length;
+  const withGps = state.items.filter(i=>i.meta.gps).length;
+  state.stripped = true;
+  setStatus('stripStatus','ok', `✓ Se va a eliminar toda la metadata original de las ${state.items.length} fotos` +
+    (withMeta ? ` (${withMeta} tenían datos de cámara/fecha${withGps?`, ${withGps} con ubicación`:''})` : ' (ninguna traía metadata visible)') +
+    '. Las fotos se vuelven a generar desde cero: no queda ningún dato del archivo original.');
+  refresh();
+};
+
+// --- datos
+function fechaParts(){ const v=$('fecha').value; if(!v) return null; const [Y,M,D]=v.split('-'); return {Y,M,D}; }
+function currentGps(){ return parseCoords($('gps').value); }
+function updateGps(){
+  const r = currentGps(), el = $('gpsStatus');
+  if(!r){ el.innerHTML = '<span style="color:var(--muted)">Opcional. Si lo dejás vacío, las fotos salen sin ubicación GPS.</span>'; return; }
+  if(r.error==='short'){ el.innerHTML = '<span style="color:var(--err)">Los links cortos (maps.app.goo.gl) no se pueden leer. Copiá las coordenadas como explica la ayuda de abajo.</span>'; return; }
+  if(r.error){ el.innerHTML = '<span style="color:var(--err)">No reconozco esas coordenadas. Probá con el formato -37.3217, -59.1332.</span>'; return; }
+  const q = `${r.lat.toFixed(6)},${r.lng.toFixed(6)}`;
+  el.innerHTML = `<span style="color:#245c0f;font-weight:600">✓ ${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}</span> <a href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener">Verificar en Maps ↗</a>`;
+}
+function updateMapsLink(){
+  const l = $('lugar').value.trim();
+  $('mapsSearch').href = l ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l)}` : 'https://www.google.com/maps';
+}
+['reseller','fecha','hora','lugar','gps','wmOn','wmPos','wmSize','wmOp'].forEach(id=>{
+  $(id).addEventListener('input', ()=>{ if(id==='gps') updateGps(); if(id==='lugar') updateMapsLink(); refresh(); schedulePreview(); });
+  $(id).addEventListener('change', ()=>{ refresh(); schedulePreview(); });
+});
+updateGps();
+
+// Ubicación actual (solo fuera de Claude: el visor de claude.ai la bloquea)
+if(!inClaude && navigator.geolocation){
+  const b = $('btnHere'); b.hidden = false;
+  b.onclick = ()=>{
+    b.disabled = true; b.textContent = 'Buscando ubicación…';
+    navigator.geolocation.getCurrentPosition(p=>{
+      $('gps').value = `${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`;
+      updateGps(); refresh(); b.disabled = false; b.textContent = '📍 Usar mi ubicación actual';
+    }, ()=>{
+      toast('No se pudo obtener la ubicación. Revisá que el navegador tenga permiso.');
+      b.disabled = false; b.textContent = '📍 Usar mi ubicación actual';
+    }, { enableHighAccuracy: true, timeout: 15000 });
+  };
+}
+
+function baseName(n){
+  const f = fechaParts(); const r = cleanName($('reseller').value);
+  return { file: `${r} - ${f.D}-${f.M}-${f.Y} (${n})`, show: `${r} - ${f.D}/${f.M}/${f.Y} (${n})` };
+}
+function refresh(){
+  const has = state.items.length>0;
+  const g = currentGps();
+  const dataOk = cleanName($('reseller').value) && fechaParts() && !(g && g.error);
+  $('btnStrip').disabled = !has;
+  $('n1').classList.toggle('done', has);
+  $('n2').classList.toggle('done', has && state.stripped);
+  $('n3').classList.toggle('done', !!dataOk);
+  $('btnGo').disabled = !(has && state.stripped && dataOk);
+  if(!has) setStatus('stripStatus','','');
+}
+
+// --- marca de agua
+function wrap(ctx, text, maxW){
+  const words = text.split(' '); const lines=[]; let cur='';
+  for(const w of words){ const t = cur ? cur+' '+w : w; if(ctx.measureText(t).width <= maxW || !cur){ cur=t; } else { lines.push(cur); cur=w; } }
+  if(cur) lines.push(cur); return lines;
+}
+function drawWatermark(ctx, W, H, lines, opt){
+  const base = Math.min(W, H);
+  const fs = Math.max(12, Math.round(base * 0.032 * opt.size));
+  const pad = Math.round(fs*0.75), gap = Math.round(fs*0.32), bar = Math.max(3, Math.round(fs*0.22));
+  const margin = Math.round(base*0.025);
+  const maxW = Math.min(W*0.9, W - margin*2) - pad*2 - bar;
+  const fam = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+  const out = [];
+  for(const l of lines){
+    const size = l.bold ? Math.round(fs*1.12) : fs;
+    const font = `${l.bold?700:500} ${size}px ${fam}`;
+    ctx.font = font;
+    wrap(ctx, l.text, maxW).forEach(t=>out.push({text:t, font, size, color:l.color}));
+  }
+  let tw = 0; out.forEach(l=>{ ctx.font=l.font; tw=Math.max(tw, ctx.measureText(l.text).width); });
+  const boxW = Math.ceil(tw + pad*2 + bar);
+  const boxH = Math.ceil(pad*2 + out.reduce((a,l)=>a+l.size,0) + gap*(out.length-1));
+  const x = opt.pos[1]==='l' ? margin : W - margin - boxW;
+  const y = opt.pos[0]==='b' ? H - margin - boxH : margin;
+  const r = Math.round(fs*0.45);
+  ctx.save();
+  ctx.fillStyle = `rgba(10,16,12,${opt.op})`;
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(x, y, boxW, boxH, r); else ctx.rect(x, y, boxW, boxH);
+  ctx.fill();
+  ctx.fillStyle = '#6cc24a';
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(x, y, bar, boxH, [r,0,0,r]); else ctx.rect(x, y, bar, boxH);
+  ctx.fill();
+  ctx.textBaseline = 'top'; ctx.shadowColor='rgba(0,0,0,.35)'; ctx.shadowBlur = Math.round(fs*0.15);
+  let cy = y + pad;
+  for(const l of out){ ctx.font=l.font; ctx.fillStyle=l.color||'#fff'; ctx.fillText(l.text, x + bar + pad, cy); cy += l.size + gap; }
+  ctx.restore();
+}
+function wmLines(n){
+  const f = fechaParts(); const r = cleanName($('reseller').value); const lugar = $('lugar').value.trim();
+  const lines = [];
+  lines.push({ text: (r && f) ? baseName(n).show : (r || 'Reseller') + ' - dd/mm/aaaa (' + n + ')', bold:true });
+  lines.push({ text: 'Lugar: ' + (lugar || '—'), color:'#e8efe9' });
+  lines.push({ text: 'Fecha: ' + (f ? `${f.D}/${f.M}/${f.Y}` : '—'), color:'#e8efe9' });
+  return lines;
+}
+function wmOpts(){ return { pos: $('wmPos').value, size: +$('wmSize').value, op: +$('wmOp').value }; }
+
+async function decode(file){
+  try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+  catch(e){
+    return await new Promise((res, rej)=>{ const img = new Image(); const u = URL.createObjectURL(file); img.onload=()=>{ res(img); }; img.onerror=()=>{ URL.revokeObjectURL(u); rej(new Error('decode')); }; img.src = u; });
+  }
+}
+function dims(img){ return { w: img.width || img.naturalWidth, h: img.height || img.naturalHeight }; }
+
+let pvTimer = null, pvCache = { id:null, img:null };
+function schedulePreview(){ clearTimeout(pvTimer); pvTimer = setTimeout(renderPreview, 120); }
+async function renderPreview(){
+  const box = $('preview');
+  if(!state.items.length){ box.innerHTML = '<div class="empty">La vista previa aparece cuando cargás fotos.</div>'; return; }
+  const it = state.items[0];
+  try{
+    if(pvCache.id !== it.id){ pvCache = { id: it.id, img: await decode(it.file) }; }
+    const { w, h } = dims(pvCache.img);
+    const s = Math.min(1, 900 / Math.max(w, h));
+    const c = document.createElement('canvas'); c.width = Math.round(w*s); c.height = Math.round(h*s);
+    const ctx = c.getContext('2d'); ctx.drawImage(pvCache.img, 0, 0, c.width, c.height);
+    if($('wmOn').checked) drawWatermark(ctx, c.width, c.height, wmLines(1), wmOpts());
+    box.innerHTML = ''; box.appendChild(c);
+  }catch(e){
+    box.innerHTML = '<div class="empty">No se pudo leer la foto 1 en este navegador. Si es HEIC de iPhone, ver el aviso al procesar.</div>';
+  }
+}
+
+// --- procesar
+function addSeconds(f, hhmm, k){
+  const [h,m] = (hhmm||'12:00').split(':').map(Number);
+  const d = new Date(+f.Y, +f.M-1, +f.D, h||0, m||0, 0); d.setSeconds(d.getSeconds()+k);
+  const p = n=>String(n).padStart(2,'0');
+  return { date: d, exif: `${d.getFullYear()}:${p(d.getMonth()+1)}:${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}` };
+}
+function canvasToBlob(c, q){ return new Promise((res, rej)=> c.toBlob(b => b ? res(b) : rej(new Error('toBlob')), 'image/jpeg', q)); }
+
+$('btnGo').onclick = async ()=>{
+  const btn = $('btnGo'); btn.disabled = true;
+  const f = fechaParts(), reseller = cleanName($('reseller').value), lugar = $('lugar').value.trim();
+  const g = currentGps(); const gps = (g && !g.error) ? g : null;
+  try { localStorage.setItem('fe_reseller', reseller); } catch(e){}
+  const prog = $('prog'); prog.hidden = false; prog.max = state.items.length; prog.value = 0;
+  $('results').innerHTML=''; state.results.forEach(r=>URL.revokeObjectURL(r.thumb)); state.results = [];
+  const fails = [];
+  for(let i=0;i<state.items.length;i++){
+    const it = state.items[i], n = i+1;
+    setStatus('goStatus','info', `Procesando ${n} de ${state.items.length}…`);
+    try{
+      const img = await decode(it.file);
+      const { w, h } = dims(img);
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h); // fondo para PNG transparentes
+      ctx.drawImage(img, 0, 0, w, h);
+      if(img.close) img.close();
+      if($('wmOn').checked) drawWatermark(ctx, w, h, wmLines(n), wmOpts());
+      const jpg = new Uint8Array(await (await canvasToBlob(c, 0.92)).arrayBuffer());
+      c.width = c.height = 0;
+      const t = addSeconds(f, $('hora').value, i);
+      const nm = baseName(n);
+      const desc = [`Evento ${reseller}`, lugar, `${f.D}/${f.M}/${f.Y}`].filter(Boolean).join(' · ');
+      const tiff = buildExif({ dateTime: t.exif, offset: '-03:00', description: desc, artist: reseller, title: nm.show,
+                               lat: gps ? gps.lat : undefined, lng: gps ? gps.lng : undefined, width: w, height: h });
+      const data = jpegWithExif(jpg, tiff);
+      const blob = new Blob([data], { type:'image/jpeg' });
+      state.results.push({ name: nm.file + '.jpg', data, blob, date: t.date, thumb: URL.createObjectURL(blob) });
+    }catch(e){
+      fails.push(`${n} (${it.file.name})`);
+    }
+    prog.value = n;
+    await new Promise(r=>setTimeout(r,0));
+  }
+  prog.hidden = true;
+  btn.disabled = false;
+  renderResults(fails);
+};
+
+function renderResults(fails){
+  const ok = state.results.length;
+  let msg = `✓ ${ok} foto${ok!==1?'s':''} lista${ok!==1?'s':''}.`;
+  if(fails.length) msg += ` <br>No se pudieron leer: ${esc(fails.join(', '))}. Quitalas y volvé a cargarlas, o probá desde otro navegador.`;
+  setStatus('goStatus', fails.length && !ok ? 'err' : 'ok', msg);
+  if(!ok){ $('results').innerHTML=''; return; }
+  const canSave = downloads || !inClaude;
+  const files = state.results.map(x => new File([x.blob], x.name, { type:'image/jpeg', lastModified: x.date.getTime() }));
+  let canShare = false;
+  try { canShare = !inClaude && !!navigator.canShare && navigator.canShare({ files }); } catch(e){}
+  const r = $('results');
+  r.innerHTML = `<div class="actions">
+      ${canShare ? '<button class="btn" id="shareAll">Guardar en el celular / compartir</button>' : ''}
+      <button class="btn ${canShare?'sec':''}" id="dlZip">Descargar todas (ZIP)</button>
+    </div>
+    ${canSave ? '' : '<div class="status err">Las descargas no están disponibles en esta vista. Abrí el link de la página en el navegador.</div>'}
+    <div class="hint" style="margin:8px 0 4px">${canShare
+      ? 'En el celular tocá «Guardar en el celular» y elegí «Guardar imágenes» (iPhone) o Google Fotos (Android). Así quedan en la galería con la fecha y la ubicación.'
+      : 'En la PC usá el ZIP. También podés descargar las fotos de a una.'}</div>`;
+  if(canShare){
+    $('shareAll').onclick = async ()=>{
+      try { await navigator.share({ files, title: files.length + ' fotos del evento' }); }
+      catch(e){ if(e && e.name !== 'AbortError') toast('No se pudo compartir. Probá con «Descargar».'); }
+    };
+  }
+  state.results.forEach((res, i)=>{
+    const row = document.createElement('div'); row.className='res';
+    row.innerHTML = `<img alt="" src="${res.thumb}"><div class="nm">${esc(res.name)}<small>${(res.data.length/1048576).toFixed(1)} MB</small></div><button class="btn sec sm">Descargar</button>`;
+    row.querySelector('button').onclick = ()=>saveFile(res.name, res.blob);
+    r.appendChild(row);
+  });
+  $('dlZip').disabled = !canSave;
+  $('dlZip').onclick = ()=>{
+    const f = fechaParts(); const zipName = `${cleanName($('reseller').value)} - ${f.D}-${f.M}-${f.Y}.zip`;
+    saveFile(zipName, makeZip(state.results.map(x=>({ name:x.name, data:x.data, date:x.date }))));
+  };
+}
+
+async function saveFile(name, blob){
+  if(downloads){
+    try{ await downloads.save({ filename: name, data: blob }); toast('Descarga lista'); }
+    catch(e){
+      if(e && e.code==='declined') return;
+      if(e && e.code==='rate_limited'){ toast('Esperá a que termine la descarga anterior'); return; }
+      toast('No se pudo descargar: ' + ((e && e.message) || 'error'));
+    }
+    return;
+  }
+  if(inClaude){ toast('Las descargas no están disponibles en esta vista'); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+}
+
+refresh();
+</script>
+</body>
+</html>
